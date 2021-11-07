@@ -17,133 +17,133 @@ function headers()
 end
 
 -- @Method:
---	Algod.genesis
+--  Algod.genesis
 --  Gets the genesis information.
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.genesis(on_success, on_error)
 	http_client.get(Algod.address .. "/genesis", headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.health
+--  Algod.health
 --  Returns OK if healthy.
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.health(on_success, on_error)
 	http_client.get(Algod.address .. "/health", headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.versions
+--  Algod.versions
 --  Returns OK if healthy.
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.versions(on_success, on_error)
 	http_client.get(Algod.address .. "/versions", headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.account
+--  Algod.account
 --  Get account information.
 -- @Input:
 --  - address: string
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.account(address, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/accounts/" .. address, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.account_transactions_pending
+--  Algod.account_transactions_pending
 --  Get a list of unconfirmed transactions currently in the transaction pool by address.
 -- @Input:
 --  - address: string
 --  - params: table {
 --    max: integer
 --  } | nil
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.account_transactions_pending(address, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/accounts/" .. address .. "/transactions/pending?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.application
+--  Algod.application
 --  Get application information.
 -- @Input:
 --  - application_id: integer
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.application(application_id, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/applications/" .. application_id, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.asset
+--  Algod.asset
 --  Get asset information.
 -- @Input:
 --  - asset_id: integer
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.asset(asset_id, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/assets/" .. asset_id, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.block
+--  Algod.block
 --  Get the block for the given round.
 -- @Input:
 --  - round: integer
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.block(round, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/blocks/" .. round, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.block_transaction_proof
+--  Algod.block_transaction_proof
 --  Get a Merkle proof for a transaction in a block.
 -- @Input:
 --  - round: integer
 --  - txid: string
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.block_transaction_proof(round, txid, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/blocks/" .. round .. "/transactions/" .. txid .. "/proof", headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.catchup_start
+--  Algod.catchup_start
 --  Starts a catchpoint catchup.
 -- @Input:
 --  - catchpoint: string
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.catchup_start(catchpoint, on_success, on_error)
 	http_client.post(Algod.address .. "/v2/catchup/" .. catchpoint, headers(), nil, on_success, on_error)
 end
 
 -- @Method:
---	Algod.catchup_abort
+--  Algod.catchup_abort
 --  Aborts a catchpoint catchup.
 -- @Input:
 --  - catchpoint: string
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.catchup_abort(catchpoint, on_success, on_error)
 	http_client.delete(Algod.address .. "/v2/catchup/" .. catchpoint, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.ledger_supply
+--  Algod.ledger_supply
 --  Get the current supply reported by the ledger.
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.ledger_supply(on_success, on_error)
 	http_client.get(Algod.address .. "/v2/ledger/supply", headers(), on_success, on_error)
 end
@@ -166,86 +166,86 @@ function Algod.register_participation_key(address, on_success, on_error)
 end
 
 -- @Method:
---	Algod.shutdown
+--  Algod.shutdown
 --  Gets the current node status.
 -- @Input:
 --  - address: string
 --  - params: table {
 --    timeout: integer (default = 0)
 --  } | nil
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.shutdown(params, on_success, on_error)
 	http_client.post(Algod.address .. "/v2/shutdown?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.status
+--  Algod.status
 --  Gets the current node status.
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.status(on_success, on_error)
 	http_client.get(Algod.address .. "/v2/status", headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.status_after_block
+--  Algod.status_after_block
 --  Gets the node status after waiting for the given round.
 -- @Input:
 --  - round: integer
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.status_after_block(round, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/status/wait-for-block-after/" .. round, headers(), on_success, on_error)
 end
 
 -- @Method:
---	Algod.teal_dryrun
+--  Algod.teal_dryrun
 --  Gets the node status after waiting for the given round.
 -- @Input:
 --  - body: table {
 --    source: string (binary)
 --  } | nil
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.teal_compile(body, on_success, on_error)
 	http_client.post(Algod.address .. "/v2/teal/compile", headers(), body,  on_success, on_error)
 end
 
 -- @Method:
---	Algod.teal_dryrun
+--  Algod.teal_dryrun
 --  Provide debugging information for a transaction (or group).
 -- @Input:
 --  - body: table {
 --    request: table DryRunRequest | nil
 --  }
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 -- @See DryRunRequest https://developer.algorand.org/docs/rest-apis/algod/v2/#dryrunrequest
 function Algod.teal_dryrun(body, on_success, on_error)
 	http_client.post(Algod.address .. "/v2/teal/dryrun", headers(), body, on_success, on_error)
 end
 
 -- @Method:
---	Algod.raw_transaction
+--  Algod.raw_transaction
 --  Broadcasts a raw transaction to the network.
 -- @Input:
 --  - body: table {
 --    rawtxn: string (binary)
 --  } | nil
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.raw_transaction(body, on_success, on_error)
 	http_client.post(Algod.address .. "/v2/transactions", headers(), body, on_success, on_error)
 end
 
 -- @Method:
---	Algod.transaction_params
+--  Algod.transaction_params
 --  Get parameters for constructing a new transaction
 -- @Input:
---	- on_success: function (data) | nil
---	- on_error: function (data) | nil
+--  - on_success: function (data) | nil
+--  - on_error: function (data) | nil
 function Algod.transaction_params(on_success, on_error)
 	http_client.get(Algod.address .. "/v2/transactions/params", headers(), on_success, on_error)
 end
