@@ -1,10 +1,12 @@
+local HttpRequestAdapter = require("AlgoLua.HttpRequestAdapter")
 local HttpClient = {}
+local json = require("AlgoLua.json")
 
 local function _catch_response(on_success, on_error)
 	return function(_, _, http_response)
-		if (http_response.status == 200) then
+		if (http_response and http_response.status == 200) then
 			local _, response = pcall(json.decode, http_response.response or "null")
-			if (response and on_success) then
+			if (on_success) then
 				on_success(response or nil)
 			end
 		elseif (on_error) then
@@ -20,10 +22,10 @@ local function _catch_response(on_success, on_error)
 end
 
 function HttpClient.request(method, full_url, body, headers, on_success, on_error)
-	if method ~= "GET" then
+	if method ~= "GET" and body then
 		local ok, request_json = pcall(json.encode, body)
 		if not ok then
-			error(request_json or "Request could not be converted to json")
+			on_error(request_json or "Request could not be converted to json")
 		end
 	end
 
@@ -32,7 +34,7 @@ function HttpClient.request(method, full_url, body, headers, on_success, on_erro
 	}
 	for k, v in pairs(headers) do request_headers[k] = v end
 
-	http.request(
+	HttpRequestAdapter(
 		full_url,
 		method,
 		_catch_response(on_success, on_error),

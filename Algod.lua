@@ -2,7 +2,7 @@
 -- To get access to the functions, you need to put:
 -- require "AlgoLua.Algod"
 -- in any script using the functions.
--- Algod full API documentation: https://developer.algorand.org/docs/rest-apis/algod/v2/
+-- Algod API documentation: https://developer.algorand.org/docs/rest-apis/algod/v2/
 
 local http_client = require("AlgoLua.HttpClient")
 local http_utils = require("AlgoLua.HttpUtils")
@@ -12,8 +12,11 @@ local Algod = {
 	token = nil
 }
 
-function headers()
-	return { ["x-api-key"] = Algod.token }
+local function headers()
+	return {
+		["x-api-key"] = Algod.token,
+		["X-Algo-API-Token"] = Algod.token
+	}
 end
 
 -- @Method:
@@ -38,7 +41,7 @@ end
 
 -- @Method:
 --  Algod.versions
---  Returns OK if healthy.
+--  Retrieves the supported API versions, binary build versions, and genesis information.
 -- @Input:
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
@@ -67,7 +70,7 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Algod.account_transactions_pending(address, on_success, on_error)
+function Algod.account_transactions_pending(address, params, on_success, on_error)
 	http_client.get(Algod.address .. "/v2/accounts/" .. address .. "/transactions/pending?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
@@ -101,6 +104,7 @@ end
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Algod.block(round, on_success, on_error)
+	pprint("asda", round)
 	http_client.get(Algod.address .. "/v2/blocks/" .. round, headers(), on_success, on_error)
 end
 
@@ -166,20 +170,6 @@ function Algod.register_participation_key(address, on_success, on_error)
 end
 
 -- @Method:
---  Algod.shutdown
---  Gets the current node status.
--- @Input:
---  - address: string
---  - params: table {
---    timeout: integer (default = 0)
---  } | nil
---  - on_success: function (data) | nil
---  - on_error: function (data) | nil
-function Algod.shutdown(params, on_success, on_error)
-	http_client.post(Algod.address .. "/v2/shutdown?" .. http_utils.query_string(params), headers(), on_success, on_error)
-end
-
--- @Method:
 --  Algod.status
 --  Gets the current node status.
 -- @Input:
@@ -202,7 +192,7 @@ end
 
 -- @Method:
 --  Algod.teal_dryrun
---  Gets the node status after waiting for the given round.
+--  Compile TEAL source code to binary, produce its hash.
 -- @Input:
 --  - body: table {
 --    source: string (binary)
@@ -210,21 +200,7 @@ end
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Algod.teal_compile(body, on_success, on_error)
-	http_client.post(Algod.address .. "/v2/teal/compile", headers(), body,  on_success, on_error)
-end
-
--- @Method:
---  Algod.teal_dryrun
---  Provide debugging information for a transaction (or group).
--- @Input:
---  - body: table {
---    request: table DryRunRequest | nil
---  }
---  - on_success: function (data) | nil
---  - on_error: function (data) | nil
--- @See DryRunRequest https://developer.algorand.org/docs/rest-apis/algod/v2/#dryrunrequest
-function Algod.teal_dryrun(body, on_success, on_error)
-	http_client.post(Algod.address .. "/v2/teal/dryrun", headers(), body, on_success, on_error)
+	http_client.post(Algod.address .. "/v2/teal/compile", body, headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -237,7 +213,7 @@ end
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Algod.raw_transaction(body, on_success, on_error)
-	http_client.post(Algod.address .. "/v2/transactions", headers(), body, on_success, on_error)
+	http_client.post(Algod.address .. "/v2/transactions", body, headers(), on_success, on_error)
 end
 
 -- @Method:

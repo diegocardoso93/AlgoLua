@@ -5,6 +5,7 @@
 -- Indexer API reference: https://developer.algorand.org/docs/rest-apis/indexer/
 
 local http_client = require("AlgoLua.HttpClient")
+local http_utils = require("AlgoLua.HttpUtils")
 
 local Indexer = {
 	address = nil,
@@ -12,7 +13,10 @@ local Indexer = {
 }
 
 local function headers()
-	return { ["x-api-key"] = Indexer.token }
+	return {
+		["x-api-key"] = Indexer.token,
+		["X-Indexer-API-Token"] = Indexer.token
+	}
 end
 
 -- @Method:
@@ -43,23 +47,23 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.accounts(on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/accounts", headers(), on_success, on_error)
+function Indexer.accounts(params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/accounts?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.accounts
 --  Lookup account information.
 -- @Input:
---  - address: string
+--  - account_id: string
 --  - params: table {
 --    include-all: boolean,
 --    round: integer
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.account(account_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/accounts/" .. account_id, headers(), on_success, on_error)
+function Indexer.account(account_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/accounts/" .. account_id .. "?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -86,24 +90,24 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.account_transactions(account_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/accounts/" .. account_id .. "/transactions", headers(), on_success, on_error)
+function Indexer.account_transactions(account_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/accounts/" .. account_id .. "/transactions?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.applications
 --  Search for applications.
 -- @Input:
---  - account_id: string
 --  - params: table {
+--    application-id: integer,
 --    include-all: boolean,
 --    limit: integer,
 --    next: string,
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.applications(on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/applications", headers(), on_success, on_error)
+function Indexer.applications(params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/applications?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -116,8 +120,8 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.application(application_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/applications/" .. application_id, headers(), on_success, on_error)
+function Indexer.application(application_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/applications/" .. application_id .. "?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -135,15 +139,14 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.application_logs(application_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/applications/" .. application_id .. "/logs", headers(), on_success, on_error)
+function Indexer.application_logs(application_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/applications/" .. application_id .. "/logs?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.assets
 --  Search for assets.
 -- @Input:
---  - application_id: integer
 --  - params: table {
 --    asset-id: integer,
 --    creator: string,
@@ -154,29 +157,29 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.assets(on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/assets", headers(), on_success, on_error)
+function Indexer.assets(params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/assets?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.asset
 --  Lookup asset information.
 -- @Input:
---  - application_id: integer
+--  - asset_id: integer
 --  - params: table {
 --    include-all: boolean,
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Indexer.asset(asset_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id, headers(), on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id .. "?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.asset_balances
 --  Lookup the list of accounts who hold this asset.
 -- @Input:
---  - application_id: integer
+--  - asset_id: integer
 --  - params: table {
 --    currency-greater-than: integer,
 --    currency-less-than: integer,
@@ -187,8 +190,8 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.asset_balances(asset_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id .. "/balances", headers(), on_success, on_error)
+function Indexer.asset_balances(asset_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id .. "/balances?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -198,7 +201,7 @@ end
 --  - asset_id: integer
 --  - params: table {
 --    address: string,
---    aaddress-role: enum (sender, receiver, freeze-target),
+--    address-role: enum (sender, receiver, freeze-target),
 --    after-time: string (date-time),
 --    before-time: string (date-time),
 --    currency-greater-than: integer,
@@ -218,8 +221,8 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.asset_transactions(asset_id, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id .. "/transactions", headers(), on_success, on_error)
+function Indexer.asset_transactions(asset_id, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/assets/" .. asset_id .. "/transactions?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
@@ -250,15 +253,14 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.block(round_number, on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/blocks/" .. round_number, headers(), on_success, on_error)
+function Indexer.block(round_number, params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/blocks/" .. round_number .. "?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
 --  Indexer.transactions
 --  Search for transactions.
 -- @Input:
---  - round_number: integer
 --  - params: table {
 --    address: integer,
 --    address-role: enum (sender, receiver, freeze-target),
@@ -282,8 +284,8 @@ end
 --  } | nil
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
-function Indexer.transactions(on_success, on_error)
-	http_client.get(Indexer.address .. "/v2/transactions", headers(), on_success, on_error)
+function Indexer.transactions(params, on_success, on_error)
+	http_client.get(Indexer.address .. "/v2/transactions?" .. http_utils.query_string(params), headers(), on_success, on_error)
 end
 
 -- @Method:
