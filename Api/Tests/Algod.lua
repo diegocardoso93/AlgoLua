@@ -1,9 +1,9 @@
 -- Tests using Algorand Sandbox
 -- To run, you need to put:
--- require "AlgoLua.Tests.Algod"
+-- require "AlgoLua.Api.Tests.Algod"
 -- https://github.com/algorand/sandbox
 
-local algod = require("AlgoLua.Algod")
+local algod = require("AlgoLua.Api.Algod")
 algod.address = "http://localhost:4001"
 algod.token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 

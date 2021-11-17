@@ -1,11 +1,11 @@
 -- Put functions in this file to use them in several other scripts.
 -- To get access to the functions, you need to put:
--- require "AlgoLua.Algod"
+-- require "AlgoLua.Api.Algod"
 -- in any script using the functions.
 -- Algod API documentation: https://developer.algorand.org/docs/rest-apis/algod/v2/
 
-local http_client = require("AlgoLua.HttpClient")
-local http_utils = require("AlgoLua.HttpUtils")
+local http_client = require("AlgoLua.Api.HttpClient")
+local http_utils = require("AlgoLua.Api.HttpUtils")
 
 local Algod = {
 	address = nil,
@@ -104,7 +104,6 @@ end
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Algod.block(round, on_success, on_error)
-	pprint("asda", round)
 	http_client.get(Algod.address .. "/v2/blocks/" .. round, headers(), on_success, on_error)
 end
 

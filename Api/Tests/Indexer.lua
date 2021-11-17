@@ -1,9 +1,9 @@
 -- Tests using Algorand Sandbox
 -- To run, you need to put:
--- require "AlgoLua.Tests.Indexer"
+-- require "AlgoLua.Api.Tests.Indexer"
 -- https://github.com/algorand/sandbox
 
-local indexer = require("AlgoLua.Indexer")
+local indexer = require("AlgoLua.Api.Indexer")
 indexer.address = "http://localhost:8980"
 indexer.token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 

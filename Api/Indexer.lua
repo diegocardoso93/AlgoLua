@@ -1,11 +1,11 @@
 -- Put functions in this file to use them in several other scripts.
 -- To get access to the functions, you need to put:
--- require "AlgoLua.Indexer"
+-- require "AlgoLua.Api.Indexer"
 -- in any script using the functions.
 -- Indexer API reference: https://developer.algorand.org/docs/rest-apis/indexer/
 
-local http_client = require("AlgoLua.HttpClient")
-local http_utils = require("AlgoLua.HttpUtils")
+local http_client = require("AlgoLua.Api.HttpClient")
+local http_utils = require("AlgoLua.Api.HttpUtils")
 
 local Indexer = {
 	address = nil,

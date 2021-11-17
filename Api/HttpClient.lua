@@ -1,6 +1,6 @@
-local HttpRequestAdapter = require("AlgoLua.HttpRequestAdapter")
+local HttpRequestAdapter = require("AlgoLua.Api.HttpRequestAdapter")
+local json = require("AlgoLua.Libs.json")
 local HttpClient = {}
-local json = require("AlgoLua.json")
 
 local function _catch_response(on_success, on_error)
 	return function(_, _, http_response)
