@@ -1,6 +1,6 @@
-local Bit = require("lockbox.util.bit");
-local Stream = require("lockbox.util.stream");
-local Array = require("lockbox.util.array");
+local Bit = require("AlgoLua.Libs.lockbox.util.bit");
+local Stream = require("AlgoLua.Libs.lockbox.util.stream");
+local Array = require("AlgoLua.Libs.lockbox.util.array");
 
 local XOR = Bit.bxor;
 

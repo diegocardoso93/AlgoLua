@@ -1,5 +1,5 @@
-local Array = require("lockbox.util.array");
-local Bit = require("lockbox.util.bit");
+local Array = require("AlgoLua.Libs.lockbox.util.array");
+local Bit = require("AlgoLua.Libs.lockbox.util.bit");
 
 local XOR = Bit.bxor;
 

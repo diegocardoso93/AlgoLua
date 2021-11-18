@@ -1,6 +1,6 @@
 local PKCS7Padding = function(blockSize, byteCount)
 
-    local paddingCount = blockSize - ((byteCount -1) % blockSize) + 1;
+    local paddingCount = blockSize - (byteCount % blockSize);
     local bytesLeft = paddingCount;
 
     local stream = function()

@@ -1,6 +1,6 @@
-local Array = require("lockbox.util.array");
-local Stream = require("lockbox.util.stream");
-local Queue = require("lockbox.util.queue");
+local Array = require("AlgoLua.Libs.lockbox.util.array");
+local Stream = require("AlgoLua.Libs.lockbox.util.stream");
+local Queue = require("AlgoLua.Libs.lockbox.util.queue");
 
 local CBC = {};
 
@@ -59,7 +59,9 @@ CBC.Cipher = function()
     end
 
     public.finish = function()
-        local paddingStream = padding(blockCipher.blockSize, inputQueue.getHead());
+        pprint('blockSize, head', blockCipher.blockSize, inputQueue.size())
+        local paddingStream = padding(blockCipher.blockSize, inputQueue.size());
+
         public.update(paddingStream);
 
         return public;
@@ -119,7 +121,7 @@ CBC.Decipher = function()
         local byte = messageStream();
         while (byte ~= nil) do
             inputQueue.push(byte);
-            if(inputQueue.size() >= blockCipher.blockSize) then
+            if(inputQueue.size() > blockCipher.blockSize) then
                 local block = Array.readFromQueue(inputQueue, blockCipher.blockSize);
 
                 if(iv == nil) then
@@ -138,7 +140,8 @@ CBC.Decipher = function()
     end
 
     public.finish = function()
-        local paddingStream = padding(blockCipher.blockSize, inputQueue.getHead());
+        local paddingStream = padding(blockCipher.blockSize, inputQueue.size());
+
         public.update(paddingStream);
 
         return public;

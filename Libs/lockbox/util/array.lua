@@ -1,7 +1,7 @@
 
 local String = require("string");
-local Bit = require("lockbox.util.bit");
-local Queue = require("lockbox.util.queue");
+local Bit = require("AlgoLua.Libs.lockbox.util.bit");
+local Queue = require("AlgoLua.Libs.lockbox.util.queue");
 
 local XOR = Bit.bxor;
 

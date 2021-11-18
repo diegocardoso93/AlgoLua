@@ -1,4 +1,4 @@
-local Queue = require("lockbox.util.queue");
+local Queue = require("AlgoLua.Libs.lockbox.util.queue");
 local String = require("string");
 
 local Stream = {};

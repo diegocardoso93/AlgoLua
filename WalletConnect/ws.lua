@@ -20,7 +20,7 @@ local function websocket_callback(self, conn, data)
 end
 
 function ws.init()
-	ws.url = "wss://a.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
+	ws.url = "wss://c.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
 	local params = {
 		timeout = 300000,
 		headers = "Sec-WebSocket-Protocol: chat\r\nOrigin: mydomain.com\r\n"
