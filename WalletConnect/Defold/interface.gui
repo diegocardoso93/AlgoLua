@@ -1,4 +1,4 @@
-script: "/AlgoLua/WalletConnect/Defold/qrcode.gui_script"
+script: "/AlgoLua/WalletConnect/Defold/interface.gui_script"
 background_color {
   x: 0.0
   y: 0.0

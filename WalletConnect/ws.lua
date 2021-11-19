@@ -1,6 +1,7 @@
 local ws = {
 	connection = null,
-	_on_connect_callback = function() end
+	_on_connect_callback = function() end,
+	_on_message_callback = function() end
 }
 
 local function websocket_callback(self, conn, data)
@@ -16,14 +17,14 @@ local function websocket_callback(self, conn, data)
 		pprint("Error: '" .. data.message .. "'")
 	elseif data.event == websocket.EVENT_MESSAGE then
 		pprint("Receiving: '" .. data.message .. "'")
+		ws._on_message_callback(conn, data)
 	end
 end
 
 function ws.init()
 	ws.url = "wss://c.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
 	local params = {
-		timeout = 300000,
-		headers = "Sec-WebSocket-Protocol: chat\r\nOrigin: mydomain.com\r\n"
+		timeout = 300000
 	}
 	ws.connection = websocket.connect(ws.url, params, websocket_callback)
 end
@@ -36,6 +37,10 @@ end
 
 function ws.on_connect(callback)
 	ws._on_connect_callback = callback
+end
+
+function ws.on_message(callback)
+	ws._on_message_callback = callback
 end
 
 function ws.send(data)

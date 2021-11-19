@@ -1,0 +1,46 @@
+local Util = require("AlgoLua.WalletConnect.Util")
+local WalletClient = require("AlgoLua.WalletConnect.Client")
+
+local qrnodes = {}
+
+function on_message(self, message_id, message, sender)
+
+	if message_id == hash('draw_qrcode') and WalletClient.qrcode then
+		qrnodes[#qrnodes+1] = gui.new_text_node(vmath.vector3(450, 600, 0), 'Use MyAlgo Wallet to connect')
+
+		local left = 300
+		local bottom = 100
+		local size = 6
+		local rows = WalletClient.qrcode
+
+		for x=0,#rows-1 do
+			local row = rows[#rows-x]
+			for i = 1, #row do
+				local c = row:sub(i, i)
+				if c == '#' then
+					local position = vmath.vector3(left + (i*size), bottom+x*size, 0)
+					local boxnode = gui.new_box_node(position, vmath.vector3(size, size, 0))
+					gui.set_color(boxnode, vmath.vector4(1, 1, 1, 1))
+					qrnodes[#qrnodes+1] = boxnode
+				end
+			end
+		end
+	elseif message_id == hash('draw_connected') and message.data then
+		-- clear qrcode
+		for i,node in pairs(qrnodes) do
+			gui.delete_node(node)
+		end
+
+		gui.new_text_node(vmath.vector3(450, 600, 0), 'Connected Wallet: ' .. message.data)
+
+	elseif message_id == hash('draw_balance') and WalletClient.account.balance then
+
+		gui.new_text_node(vmath.vector3(450, 550, 0), 'Balances')
+
+		local assets = WalletClient.account.balance
+		for i,asset in pairs(assets) do
+			gui.new_text_node(vmath.vector3(350, 550-(i*30), 0), asset['name'])
+			gui.new_text_node(vmath.vector3(550, 550-(i*30), 0), Util.format_coin(tostring(asset['amount']), '.', asset['decimals']) .. ' ' .. asset['unit-name'])
+		end
+	end
+end

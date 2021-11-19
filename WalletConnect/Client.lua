@@ -7,16 +7,22 @@ local AES256Cipher = require("AlgoLua.Libs.lockbox.cipher.aes256")
 local UUID = require("AlgoLua.Libs.uuid4")
 local HMAC = require("AlgoLua.Libs.lockbox.mac.hmac")
 local SHA2_256 = require("AlgoLua.Libs.lockbox.digest.sha2_256")
+local json = require("AlgoLua.Libs.json")
 
 local QRCode = require("AlgoLua.WalletConnect.QRCode")
 local ws = require("AlgoLua.WalletConnect.ws")
+local http_client = require("AlgoLua.Api.HttpClient")
 
 local Client = {
 	connected = false,
+	key = nil,
+	app = {},
+	session_topic = nil,
 	encrypt = function() end,
 	decript = function() end,
 	session_request = function() end,
-	app = {},
+	network = 'testnet', -- testnet | mainnet,
+	qrcode = nil
 }
 
 function Client.encrypt(data, key, iv)
@@ -61,7 +67,6 @@ end
 
 function Client.decrypt(data, key, iv)
 	local v = {
-		cipher = CBCMode.Cipher,
 		decipher = CBCMode.Decipher,
 		key = key,
 		iv = iv,
@@ -75,15 +80,21 @@ function Client.decrypt(data, key, iv)
 
 	local plainOutput = decipher
 		.init()
-		.update(Stream.fromHex(v.iv))
-		.update(Stream.fromHex(data))
+		.update(Stream.fromArray(v.iv))
+		.update(Stream.fromArray(data))
 		.finish()
 		.asHex();
 
-	pprint("plainOutput", Array.toString(Array.fromHex(plainOutput)))
+	local jsonString = Client.remove_padding(Array.toString(Array.fromHex(plainOutput)))
+
+	return json.decode(jsonString)
 end
 
-function Client.connect(callback, app)
+function Client.remove_padding(jsonString)
+	return string.gsub(jsonString, "[%z\1-\16]*", "")
+end
+
+function Client.connect(app, on_connect_callback, on_message_callback)
 	Client.app = {
 		name = app.name,
 		description = app.description,
@@ -98,7 +109,35 @@ function Client.connect(callback, app)
 
 		Client.connected = true
 
-		callback(data)
+		if on_connect_callback then
+			on_connect_callback(message)
+		end
+	end)
+
+	ws.on_message(function (conn, response)
+		local message = json.decode(response.message)
+
+		if Client.session_topic == message.topic then
+			local payload = json.decode(message.payload)
+			local decrypted = Client.decrypt(Array.fromHex(payload.data), Array.fromHex(Client.key), Array.fromHex(payload.iv))
+
+			local result = decrypted.result
+			if result.approved and result.chainId == 4160 then -- Algorand
+				msg.post("WalletConnect#interface", "draw_connected", {data = result.accounts[1]})
+
+				Client.get_account(
+					result.accounts[1],
+					function(account)
+						msg.post("WalletConnect#interface", "draw_balance")
+					end)
+			else
+				pprint('canceled')
+			end
+		end
+
+		if on_message_callback then
+			on_message_callback(message)
+		end
 	end)
 end
 
@@ -123,21 +162,103 @@ function Client.session_request()
 	local key = Client.random_hex(64)
 	local iv = Client.random_hex(32)
 
-	QRCode.draw("wc:" .. pub_topic .. "@1?bridge=https%3A%2F%2Fc.bridge.walletconnect.org&key=" .. key)
+	Client.key = key
+
+	local wcLink = "wc:" .. pub_topic .. "@1?bridge=https%3A%2F%2Fc.bridge.walletconnect.org&key=" .. key
+	pprint('wcLink', wcLink)
+
+	Client.qrcode = QRCode.draw(wcLink)
+	msg.post("WalletConnect#interface", "draw_qrcode")
 
 	local app = Client.app
 
 	local encrypted = Client.encrypt(
-	'{"id":' .. Client.payload_id() .. ',"jsonrpc":"2.0","method":"wc_sessionRequest","params":[{"peerId":"' .. sub_topic .. '","peerMeta":{"description":"' .. app.description .. '","url":"' .. app.url .. '","icons":["' .. app.icon .. '"],"name":"' .. app.name .. '"},"chainId":null}]}',
+		json.encode({
+			id = Client.payload_id(),
+			jsonrpc = '2.0',
+			method = 'wc_sessionRequest',
+			params = {{
+				peerId = sub_topic,
+				peerMeta = {
+					name = app.name,
+					description = app.description,
+					url = app.url,
+					icon = app.icon
+				},
+				chainId = nil
+			}}
+		}),
 		Array.fromHex(key),
 		Array.fromHex(iv)
 	)
 
-	local req = [[{"topic":"]] .. pub_topic .. [[","type":"pub","payload":"{\"data\":\"]] .. encrypted.data .. [[\",\"hmac\":\"]] .. encrypted.hmac .. [[\",\"iv\":\"]] .. encrypted.iv .. [[\"}","silent":true}]]
-	pprint('wallet_connect_request()', req)
-	ws.send(req)
+	local sessionPublish = json.encode({
+		topic = pub_topic,
+		type = 'pub',
+		payload = json.encode({
+			data = encrypted.data,
+			hmac = encrypted.hmac,
+			iv = encrypted.iv
+		}),
+		silent = true
+	})
 
-	ws.send('{"topic":"' .. sub_topic .. '","type":"sub","payload":"","silent":true}')
+	ws.send(sessionPublish)
+
+	local sessionSubscribe = json.encode({
+		topic = sub_topic,
+		type = 'sub',
+		payload = '',
+		silent = true
+	})
+
+	Client.session_topic = sub_topic
+
+	ws.send(sessionSubscribe)
+end
+
+function Client.get_account(address, callback)
+	network_url_part = (Client.network == 'testnet.' and Client.network or '')
+
+	local on_success = function(account)
+		Client.account = account
+		local balance = {}
+		Client.account.balance = balance
+
+		balance[#balance+1] = {
+			['name'] = 'Algorand',
+			['unit-name'] = 'ALGO',
+			['decimals'] = 6,
+			['amount'] = account['amount']
+		}
+
+		local count_assets = 1
+		local on_success_asset_detail = function(asset)
+			local params = asset.params
+
+			for idx,acc_asset in pairs(account.assets) do
+				if asset.index == acc_asset['asset-id'] then
+					balance[#balance+1] = {
+						['name'] = params['name'],
+						['unit-name'] = params['unit-name'],
+						['decimals'] = params['decimals'],
+						['amount'] = account.assets[idx]['amount']
+					}
+				end
+			end
+
+			if count_assets >= #account.assets and callback then
+				callback(Client.account)
+			end
+			count_assets = count_assets + 1
+		end
+
+		for _,asset in pairs(account.assets) do
+			http_client.get('https://' .. network_url_part .. 'algoexplorerapi.io/v2/assets/' .. asset['asset-id'], {}, on_success_asset_detail, on_error)
+		end
+	end
+
+	http_client.get('https://' .. network_url_part .. 'algoexplorerapi.io/v2/accounts/' .. address, {}, on_success, on_error)
 end
 
 return Client

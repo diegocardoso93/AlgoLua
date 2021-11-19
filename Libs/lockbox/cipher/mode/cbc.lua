@@ -59,7 +59,6 @@ CBC.Cipher = function()
     end
 
     public.finish = function()
-        pprint('blockSize, head', blockCipher.blockSize, inputQueue.size())
         local paddingStream = padding(blockCipher.blockSize, inputQueue.size());
 
         public.update(paddingStream);

@@ -44,17 +44,13 @@ local function matrix_to_string(tab, padding,padding_char,white_pixel, black_pix
 	return str_tab
 end
 
-function draw(uri)
+function draw(uri, left, bottom, size)
 	local ok, tab = qrencode.qrcode(uri)
 
 	if not ok then
 		print(ok, tab)
 	else
-		local rows
-		rows = matrix_to_string(tab,1,"#","#"," ")
-		for i=0,#rows do
-			msg.post("#qrcode", "draw_square", {data = rows[#rows-i], x = 0, y = i*10})
-		end
+		return matrix_to_string(tab,1,"#","#"," ")
 	end
 end
 
