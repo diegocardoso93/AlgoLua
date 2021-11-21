@@ -2,10 +2,18 @@ local Util = require("AlgoLua.WalletConnect.Util")
 local WalletClient = require("AlgoLua.WalletConnect.Client")
 
 local qrnodes = {}
+local txtnodes = {}
+local state = nil
+local button_network = nil
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
 
 function on_message(self, message_id, message, sender)
 
 	if message_id == hash('draw_qrcode') and WalletClient.qrcode then
+		qrnodes = {}
 		qrnodes[#qrnodes+1] = gui.new_text_node(vmath.vector3(450, 600, 0), 'Use MyAlgo Wallet to connect')
 
 		local left = 300
@@ -25,22 +33,55 @@ function on_message(self, message_id, message, sender)
 				end
 			end
 		end
-	elseif message_id == hash('draw_connected') and message.data then
+	elseif message_id == hash('draw_connected') then
 		-- clear qrcode
 		for i,node in pairs(qrnodes) do
 			gui.delete_node(node)
 		end
 
-		gui.new_text_node(vmath.vector3(450, 600, 0), 'Connected Wallet: ' .. message.data)
+		gui.new_text_node(vmath.vector3(450, 600, 0), 'Connected Wallet: ' .. WalletClient.connection.accounts[1])
 
+		button_network = {
+			node = gui.new_box_node(vmath.vector3(850, 600, 0), vmath.vector3(150, 20, 0)),
+			text = gui.new_text_node(vmath.vector3(850, 600, 0), 'Testnet')
+		}
+		gui.set_color(button_network.node, vmath.vector4(0.9, 0.9, 0.9, 1))
+		gui.set_color(button_network.text, vmath.vector4(0, 0, 0, 1))
+
+		state = 'draw_connected'
 	elseif message_id == hash('draw_balance') and WalletClient.account.balance then
+		-- clear balance text
+		for i,node in pairs(txtnodes) do
+			gui.delete_node(node)
+		end
 
-		gui.new_text_node(vmath.vector3(450, 550, 0), 'Balances')
+		txtnodes = {}
+		txtnodes[#txtnodes+1] = gui.new_text_node(vmath.vector3(450, 550, 0), 'Balances')
 
 		local assets = WalletClient.account.balance
 		for i,asset in pairs(assets) do
-			gui.new_text_node(vmath.vector3(350, 550-(i*30), 0), asset['name'])
-			gui.new_text_node(vmath.vector3(550, 550-(i*30), 0), Util.format_coin(tostring(asset['amount']), '.', asset['decimals']) .. ' ' .. asset['unit-name'])
+			txtnodes[#txtnodes+1] = gui.new_text_node(vmath.vector3(350, 550-(i*30), 0), asset['name'])
+			txtnodes[#txtnodes+1] = gui.new_text_node(vmath.vector3(550, 550-(i*30), 0), Util.format_coin(tostring(asset['amount']), '.', asset['decimals']) .. ' ' .. asset['unit-name'])
+		end
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.pressed and state == 'draw_connected' then
+		if action.x > 800 and action.y > 600 then
+			if gui.get_text(button_network.text) == 'Testnet' then
+				gui.set_text(button_network.text, 'Mainnet')
+				WalletClient.network = 'mainnet'
+			else
+				gui.set_text(button_network.text, 'Testnet')
+				WalletClient.network = 'testnet'
+			end
+
+			WalletClient.get_account(
+				WalletClient.connection.accounts[1],
+				function(account)
+					msg.post("WalletConnect#interface", "draw_balance")
+				end)
 		end
 	end
 end

@@ -3,7 +3,7 @@
 </p>
 
 # AlgoLua
-This project is focused on creating the Algorand Lua SDK so that developers can integrate Algorand features with the most common game engines that use the Lua scripting language. The initial plan is to support Defold, LÖVE, and Roblox Studio. [WIP]
+This project is focused on creating the Algorand Lua SDK so that developers can integrate Algorand features with the most common game engines that use the Lua scripting language. The initial plan is to support Defold, Solar2D (Corona SDK), LÖVE. [WIP]
 
 ⚠ `this project is not audited and should not be used in a production environment.`
 
@@ -19,24 +19,24 @@ algod.genesis(function(data) pprint(data) end, function(error) pprint(error) end
 
 ## Currently support
 #### API Algod
-|                     | Defold  |  Löve   |
-| ------------------- | ------- | ------- |
-| All search methods  | &#9745; | &#9745; |
-| Make transactions   | &#9744; | &#9744; |
-| Create assets       | &#9744; | &#9744; |
-| Create applications | &#9744; | &#9744; |
+|                     | Defold  | Solar2D |  Löve   |
+| ------------------- | ------- | ------- | ------- |
+| All search methods  | &#9745; | &#9745; | &#9745; |
+| Make transactions   | &#9744; | &#9744; | &#9744; |
+| Create assets       | &#9744; | &#9744; | &#9744; |
+| Create applications | &#9744; | &#9744; | &#9744; |
 #### API Indexer
-|                     | Defold  |  Löve   |
-| ------------------- |-------- | ------- |
-| All search methods  | &#9745; | &#9745; |
+|                     | Defold  | Solar2D |  Löve   |
+| ------------------- |-------- | ------- | ------- |
+| All search methods  | &#9745; | &#9745; | &#9745; |
 #### WalletConnect protocol
-|                                    | Defold  |  Löve   |
-| ---------------------------------- | ------- | ------- |
-| Create QRCode                      | &#9745; | &#9744; |
-| Account balance (list assets)      | &#9744; | &#9744; |
-| Select network (testnet, mainnet)  | &#9744; | &#9744; |
-| Sign pay transaction               | &#9744; | &#9744; |
-| Sign asset opt-in transaction      | &#9744; | &#9744; |
-| Sign asset transfer transaction    | &#9744; | &#9744; |
-| Sign app opt-in transaction        | &#9744; | &#9744; |
-| Sign app call transaction          | &#9744; | &#9744; |
+|                                    | Defold  | Solar2D |  Löve   |
+| ---------------------------------- | ------- | ------- | ------- |
+| Create QRCode                      | &#9745; | &#9745; | &#9744; |
+| Account balance (list assets)      | &#9745; | &#9745; | &#9744; |
+| Select network (testnet, mainnet)  | &#9745; | &#9745; | &#9744; |
+| Sign pay transaction               | &#9744; | &#9744; | &#9744; |
+| Sign asset opt-in transaction      | &#9744; | &#9744; | &#9744; |
+| Sign asset transfer transaction    | &#9744; | &#9744; | &#9744; |
+| Sign app opt-in transaction        | &#9744; | &#9744; | &#9744; |
+| Sign app call transaction          | &#9744; | &#9744; | &#9744; |

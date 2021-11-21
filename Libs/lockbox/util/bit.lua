@@ -10,6 +10,9 @@ if not ok then
     ok, e = pcall(require, "bit.numberlua") -- for Lua 5.1, https://github.com/tst2005/lua-bit-numberlua/
 end
 if not ok then
+    ok, e = pcall(require, "plugin.bit")
+end
+if not ok then
     error("no bitwise support found", 2)
 end
 assert(type(e) == "table", "invalid bit module")

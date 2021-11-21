@@ -11,6 +11,16 @@ function HttpClientAdapter(full_url, method, callback, request_headers, request_
 			request_json,
 			{} -- options
 		)
+	elseif network and network.request then
+		-- Solar2D
+		network.request(
+			full_url,
+			method,
+			function (event)
+				callback(nil, nil, event)
+			end,
+			{headers = request_headers, body = request_json}
+		)
 	else
 	-- Löve
 		local _,ltn12 = pcall(require, "ltn12")

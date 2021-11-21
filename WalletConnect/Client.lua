@@ -22,7 +22,10 @@ local Client = {
 	decript = function() end,
 	session_request = function() end,
 	network = 'testnet', -- testnet | mainnet,
-	qrcode = nil
+
+	connection = nil,
+	qrcode = nil,
+	account = nil
 }
 
 function Client.encrypt(data, key, iv)
@@ -105,8 +108,6 @@ function Client.connect(app, on_connect_callback, on_message_callback)
 	ws.init()
 
 	ws.on_connect(function (conn, data)
-		pprint('connected', conn, data)
-
 		Client.connected = true
 
 		if on_connect_callback then
@@ -114,8 +115,8 @@ function Client.connect(app, on_connect_callback, on_message_callback)
 		end
 	end)
 
-	ws.on_message(function (conn, response)
-		local message = json.decode(response.message)
+	ws.on_message(function (conn, message)
+		local message = json.decode(message)
 
 		if Client.session_topic == message.topic then
 			local payload = json.decode(message.payload)
@@ -123,11 +124,14 @@ function Client.connect(app, on_connect_callback, on_message_callback)
 
 			local result = decrypted.result
 			if result.approved and result.chainId == 4160 then -- Algorand
-				msg.post("WalletConnect#interface", "draw_connected", {data = result.accounts[1]})
+				Client.draw_state = 'draw_connected'
+				Client.connection = result
+				msg.post("WalletConnect#interface", "draw_connected")
 
 				Client.get_account(
 					result.accounts[1],
 					function(account)
+						Client.draw_state = 'draw_balance'
 						msg.post("WalletConnect#interface", "draw_balance")
 					end)
 			else
@@ -168,6 +172,7 @@ function Client.session_request()
 	pprint('wcLink', wcLink)
 
 	Client.qrcode = QRCode.draw(wcLink)
+	Client.draw_state = 'draw_qrcode'
 	msg.post("WalletConnect#interface", "draw_qrcode")
 
 	local app = Client.app
@@ -218,7 +223,7 @@ function Client.session_request()
 end
 
 function Client.get_account(address, callback)
-	network_url_part = (Client.network == 'testnet.' and Client.network or '')
+	network_url_part = (Client.network == 'testnet' and Client.network..'.' or '')
 
 	local on_success = function(account)
 		Client.account = account
@@ -232,29 +237,33 @@ function Client.get_account(address, callback)
 			['amount'] = account['amount']
 		}
 
-		local count_assets = 1
-		local on_success_asset_detail = function(asset)
-			local params = asset.params
+		if #account.assets == 0 then
+			callback(Client.account)
+		else
+			local count_assets = 1
+			local on_success_asset_detail = function(asset)
+				local params = asset.params
 
-			for idx,acc_asset in pairs(account.assets) do
-				if asset.index == acc_asset['asset-id'] then
-					balance[#balance+1] = {
-						['name'] = params['name'],
-						['unit-name'] = params['unit-name'],
-						['decimals'] = params['decimals'],
-						['amount'] = account.assets[idx]['amount']
-					}
+				for idx,acc_asset in pairs(account.assets) do
+					if asset.index == acc_asset['asset-id'] then
+						balance[#balance+1] = {
+							['name'] = params['name'],
+							['unit-name'] = params['unit-name'],
+							['decimals'] = params['decimals'],
+							['amount'] = account.assets[idx]['amount']
+						}
+					end
 				end
+
+				if count_assets >= #account.assets and callback then
+					callback(Client.account)
+				end
+				count_assets = count_assets + 1
 			end
 
-			if count_assets >= #account.assets and callback then
-				callback(Client.account)
+			for _,asset in pairs(account.assets) do
+				http_client.get('https://' .. network_url_part .. 'algoexplorerapi.io/v2/assets/' .. asset['asset-id'], {}, on_success_asset_detail, on_error)
 			end
-			count_assets = count_assets + 1
-		end
-
-		for _,asset in pairs(account.assets) do
-			http_client.get('https://' .. network_url_part .. 'algoexplorerapi.io/v2/assets/' .. asset['asset-id'], {}, on_success_asset_detail, on_error)
 		end
 	end
 
