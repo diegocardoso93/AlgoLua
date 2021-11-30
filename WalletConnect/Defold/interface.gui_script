@@ -14,7 +14,7 @@ function on_message(self, message_id, message, sender)
 
 	if message_id == hash('draw_qrcode') and WalletClient.qrcode then
 		qrnodes = {}
-		qrnodes[#qrnodes+1] = gui.new_text_node(vmath.vector3(450, 600, 0), 'Use MyAlgo Wallet to connect')
+		qrnodes[#qrnodes+1] = gui.new_text_node(vmath.vector3(450, 600, 0), 'Use Algo Wallet to connect')
 
 		local left = 300
 		local bottom = 100

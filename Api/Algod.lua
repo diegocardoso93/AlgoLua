@@ -212,7 +212,9 @@ end
 --  - on_success: function (data) | nil
 --  - on_error: function (data) | nil
 function Algod.raw_transaction(body, on_success, on_error)
-	http_client.post(Algod.address .. "/v2/transactions", body, headers(), on_success, on_error)
+	local headers = headers()
+	headers['Content-Type'] = 'application/x-binary'
+	http_client.post(Algod.address .. "/v2/transactions", body, headers, on_success, on_error)
 end
 
 -- @Method:

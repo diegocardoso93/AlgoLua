@@ -3,6 +3,8 @@ function HttpClientAdapter(full_url, method, callback, request_headers, request_
 
 	-- Defold
 	if http and http.request then
+		pprint('request_headers', request_headers)
+		pprint('request_json', request_json)
 		http.request(
 			full_url,
 			method,
@@ -12,7 +14,7 @@ function HttpClientAdapter(full_url, method, callback, request_headers, request_
 			{} -- options
 		)
 	elseif network and network.request then
-		-- Solar2D
+	-- Solar2D
 		network.request(
 			full_url,
 			method,

@@ -6,50 +6,7 @@ local ws = {
 	_on_message_callback = function() end
 }
 
-if not websocket then -- Solar2D
-
-	function ws.init()
-		ws.url = "wss://c.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
-
-		local WebSockets = require("plugin.websockets")
-
-		ws.connection = WebSockets.new()
-		local wsock = ws.connection
-
-		local function ws_handler(event)
-			local etype = event.type
-
-			if etype == wsock.ONOPEN then
-				ws._on_connect_callback()
-			elseif etype == wsock.ONMESSAGE then
-				local msg = event.data
-				print('message', msg)
-				ws._on_message_callback(nil, event.data)
-			elseif etype == wsock.ONCLOSE then
-				pprint("Disconnected")
-				wsock = nil
-			elseif etype == wsock.ONERROR then
-				pprint("Error", event.code, event.reason)
-			end
-		end
-
-		wsock:addEventListener(wsock.WSEVENT, ws_handler)
-		wsock:connect(ws.url)
-	end
-
-	function ws.on_connect(callback)
-		ws._on_connect_callback = callback
-	end
-
-	function ws.on_message(callback)
-		ws._on_message_callback = callback
-	end
-
-	function ws.send(data)
-		ws.connection:send(data)
-	end
-
-else -- Defold
+if websocket then -- Defold
 
 	local function websocket_callback(self, conn, data)
 		pprint("socket message: ", data, conn)
@@ -93,6 +50,50 @@ else -- Defold
 	function ws.send(data)
 		websocket.send(ws.connection, data)
 	end
+
+else -- Solar2D
+
+	function ws.init()
+		ws.url = "wss://c.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
+
+		local WebSockets = pcal(require, "plugin.websockets")
+
+		ws.connection = WebSockets.new()
+		local wsock = ws.connection
+
+		local function ws_handler(event)
+			local etype = event.type
+
+			if etype == wsock.ONOPEN then
+				ws._on_connect_callback()
+			elseif etype == wsock.ONMESSAGE then
+				local msg = event.data
+				print('message', msg)
+				ws._on_message_callback(nil, event.data)
+			elseif etype == wsock.ONCLOSE then
+				pprint("Disconnected")
+				wsock = nil
+			elseif etype == wsock.ONERROR then
+				pprint("Error", event.code, event.reason)
+			end
+		end
+
+		wsock:addEventListener(wsock.WSEVENT, ws_handler)
+		wsock:connect(ws.url)
+	end
+
+	function ws.on_connect(callback)
+		ws._on_connect_callback = callback
+	end
+
+	function ws.on_message(callback)
+		ws._on_message_callback = callback
+	end
+
+	function ws.send(data)
+		ws.connection:send(data)
+	end
+
 end
 
 return ws

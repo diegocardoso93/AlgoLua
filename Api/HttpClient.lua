@@ -22,7 +22,9 @@ local function _catch_response(on_success, on_error)
 end
 
 function HttpClient.request(method, full_url, body, headers, on_success, on_error)
-	if method ~= "GET" and body then
+	if headers['Content-Type'] then
+		request_json = body
+	elseif method ~= "GET" and body  then
 		local ok, request_json = pcall(json.encode, body)
 		if not ok then
 			on_error(request_json or "Request could not be converted to json")

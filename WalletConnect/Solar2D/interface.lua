@@ -7,7 +7,7 @@ local txtnodes = {}
 
 local function draw_qrcode()
     qrnodes = {}
-    qrnodes[#qrnodes+1] = display.newText('Use MyAlgo Wallet to connect', 140, 30)
+    qrnodes[#qrnodes+1] = display.newText('Use Algo Wallet to connect', 140, 30)
 
     local left = 0
     local bottom = 100
