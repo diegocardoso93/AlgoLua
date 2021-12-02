@@ -40,3 +40,7 @@ algod.genesis(function(data) pprint(data) end, function(error) pprint(error) end
 | Sign asset transfer transaction    | &#9744; | &#9744; | &#9744; |
 | Sign app opt-in transaction        | &#9744; | &#9744; | &#9744; |
 | Sign app call transaction          | &#9744; | &#9744; | &#9744; |
+
+## Project examples
+#### Defold  (https://github.com/diegocardoso93/AlgoLua-Defold-example)
+#### Solar2D  (https://github.com/diegocardoso93/AlgoLua-Solar2D-example)
