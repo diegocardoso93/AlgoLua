@@ -56,7 +56,7 @@ else -- Solar2D
 	function ws.init()
 		ws.url = "wss://c.bridge.walletconnect.org/?env=browser&host=localhost%3A3000&protocol=wc&version=1";
 
-		local WebSockets = require("plugin.websockets")
+		local hasWebSockets,WebSockets = pcall(require, "plugin.websockets")
 
 		ws.connection = WebSockets.new()
 		local wsock = ws.connection
